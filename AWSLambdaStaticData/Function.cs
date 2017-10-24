@@ -6,6 +6,9 @@ using System.Runtime.Serialization;
 using Amazon.Lambda.Core;
 using System.IO;
 using Newtonsoft.Json;
+using Amazon.Lambda.APIGatewayEvents;
+//using System.Net;
+
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
@@ -21,14 +24,20 @@ namespace AWSLambdaStaticData
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public string Get(ILambdaContext context)
+        public APIGatewayProxyResponse Get(APIGatewayProxyRequest request, ILambdaContext context)
         {
             GigawadStaticData myData = new GigawadStaticData();
 
             myData.name = "Gigawad from Lambda";
             myData.message = "Hooray for Lambda!";
 
-            return JsonConvert.SerializeObject(myData);
+            var response = new APIGatewayProxyResponse
+            {
+                StatusCode = 200,
+                Body = JsonConvert.SerializeObject(myData), //"Hello AWS Serverless",
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "Access-Control-Allow-Origin", "*" } }
+            };
+            return response;
         }
     }
 
@@ -41,5 +50,6 @@ namespace AWSLambdaStaticData
         [DataMember]
         internal string message;
     }
+
 
 }
